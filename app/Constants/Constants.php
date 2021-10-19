@@ -11,7 +11,7 @@ class Constants
     const client_id = 'kbC31cNX5fWckyocDsTtmhA7bQL0nXrg';
     const client_secret = '9wRhhb2nkSdLd1m5';
     const response_type = 'code';
-    const redirect_uri = 'https://52e2-196-179-220-251.ngrok.io/api/v1/ApiAccessTokens';
+    const redirect_uri = 'https://cf73-102-170-228-216.ngrok.io/api/v1/ApiAccessTokens';
     const grant_type = 'authorization_code';
     const api_uri = 'https://api.infusionsoft.com/crm/rest/v1';
 

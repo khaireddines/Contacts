@@ -71,7 +71,7 @@ class ContactController extends Controller
     }
     public function storeAccessTokens()
     {
-        $this->Constants->setCode(request ('code'));
+        $this->Constants->setCode(request('code'));
         $this->Constants->setScope(request('scope'));
         $response = Http::asForm()->withOptions(['verify'=>false]);
         $response = $response->post(Constants::accessToken_uri,[
@@ -117,35 +117,54 @@ class ContactController extends Controller
         return $response->json();
     }
 
+    /**
+     * @param Request $request
+     * @return mixed
+     */
     public function createContact(Request $request)
     {
-        $validator = Validator::make($request->all(),[
-            'email_addresses' => ['array'],
-            'phone_numbers' => ['array'],
-            'country_code'
-        ]);
+        $tokens = oauth_access_token::first();
+        $response = Http::withOptions(['verify'=>false]);
+        $response = $response->withHeaders([
+            'Authorization' =>'Bearer '.$tokens->access_token,
+            'Accept' => 'application/json, */*',
+            'Content-Type' => 'application/json'
+        ])->post(Constants::api_uri.'/contacts',$request->all());
+        if($response->status() === 401) {
+            $this->RefreshToken($tokens->refresh_token);
+            return $this->createContact($request);
+        }
+        return $response->json();
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param Request $request
-     * @param Contact $contact
-     * @return Response
-     */
-    public function update(Request $request, Contact $contact)
+    public function updateContact(Request $request, $contactId)
     {
-        //
+        $tokens = oauth_access_token::first();
+        $response = Http::withOptions(['verify'=>false]);
+        $response = $response->withHeaders([
+            'Authorization' =>'Bearer '.$tokens->access_token,
+            'Accept' => 'application/json, */*',
+            'Content-Type' => 'application/json'
+        ])->patch(Constants::api_uri.'/contacts/'.$contactId,$request->all());
+        if($response->status() === 401) {
+            $this->RefreshToken($tokens->refresh_token);
+            return $this->updateContact($request, $contactId);
+        }
+        return $response->json();
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param Contact $contact
-     * @return Response
-     */
-    public function destroy(Contact $contact)
+    public function deleteContact($contactId)
     {
-        //
+        $tokens = oauth_access_token::first();
+        $response = Http::asForm()->withOptions(['verify'=>false]);
+        $response = $response->withHeaders([
+            'Authorization' =>'Bearer '.$tokens->access_token,
+            'Accept' => 'application/json, */*'
+        ])->delete(Constants::api_uri.'/contacts/'.$contactId);
+        if($response->status() === 401) {
+            $this->RefreshToken($tokens->refresh_token);
+            return $this->deleteContact($contactId);
+        }
+        return $response->json();
     }
 }

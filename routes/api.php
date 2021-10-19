@@ -10,7 +10,9 @@ Route::prefix('v1')->middleware([])->group(function ( )
     Route::get('ApiAccessTokens',[ContactController::class,'storeAccessTokens']);
     /** Authentication Routes */
 
-    /** Contacts Routes */
+    /** api Routes */
     Route::get('contacts',[ContactController::class,'allContacts']);
-    Route::post('contacts',[ContactController::class,'allContacts']);
+    Route::post('contacts',[ContactController::class,'createContact']);
+    Route::patch('contacts/{contactId}',[ContactController::class,'updateContact']);
+    Route::delete('contacts/{contactId}',[ContactController::class,'deleteContact']);
 });

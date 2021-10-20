@@ -4,6 +4,7 @@ namespace App\Constants;
 
 class Constants
 {
+    const app_url = 'http://contacts.me';
     const authentication_uri = 'https://accounts.infusionsoft.com/app/oauth/authorize?client_id='.self::client_id.'&redirect_uri='.self::redirect_uri.'&response_type='.self::response_type;
     const accessToken_uri = 'https://api.infusionsoft.com/token';
     const email = 'nazran.info@gmail.com';
@@ -11,7 +12,7 @@ class Constants
     const client_id = 'kbC31cNX5fWckyocDsTtmhA7bQL0nXrg';
     const client_secret = '9wRhhb2nkSdLd1m5';
     const response_type = 'code';
-    const redirect_uri = 'https://cf73-102-170-228-216.ngrok.io/api/v1/ApiAccessTokens';
+    const redirect_uri = self::app_url.'/ApiAccessTokens';
     const grant_type = 'authorization_code';
     const api_uri = 'https://api.infusionsoft.com/crm/rest/v1';
 

@@ -86,6 +86,7 @@ class ContactController extends Controller
             oauth_access_token::first()->update($response->json());
         else
             oauth_access_token::create($response->json());
+        return redirect('contacts');
     }
     protected function RefreshToken($refresh_token)
     {
@@ -105,6 +106,8 @@ class ContactController extends Controller
     public function allContacts()
     {
         $tokens = oauth_access_token::first();
+        if (!$tokens)
+            return $this->getClientCode();
         $response = Http::asForm()->withOptions(['verify'=>false]);
         $response = $response->withHeaders([
             'Authorization' =>'Bearer '.$tokens->access_token,
@@ -114,7 +117,7 @@ class ContactController extends Controller
             $this->RefreshToken($tokens->refresh_token);
             return $this->allContacts();
         }
-        return $response->json();
+        return view('contacts')->with(['data'=>$response->json()]);
     }
 
     /**
@@ -124,38 +127,44 @@ class ContactController extends Controller
     public function createContact(Request $request)
     {
         $tokens = oauth_access_token::first();
+        if (!$tokens)
+            return $this->getClientCode();
         $response = Http::withOptions(['verify'=>false]);
         $response = $response->withHeaders([
             'Authorization' =>'Bearer '.$tokens->access_token,
             'Accept' => 'application/json, */*',
             'Content-Type' => 'application/json'
-        ])->post(Constants::api_uri.'/contacts',$request->all());
+        ])->post(Constants::api_uri.'/contacts',(array)json_decode(request('contact')));
         if($response->status() === 401) {
             $this->RefreshToken($tokens->refresh_token);
             return $this->createContact($request);
         }
-        return $response->json();
+        return redirect('contacts');
     }
 
     public function updateContact(Request $request, $contactId)
     {
         $tokens = oauth_access_token::first();
+        if (!$tokens)
+            return $this->getClientCode();
         $response = Http::withOptions(['verify'=>false]);
         $response = $response->withHeaders([
             'Authorization' =>'Bearer '.$tokens->access_token,
             'Accept' => 'application/json, */*',
             'Content-Type' => 'application/json'
-        ])->patch(Constants::api_uri.'/contacts/'.$contactId,$request->all());
+        ])->patch(Constants::api_uri.'/contacts/'.$contactId,(array)json_decode(request('contact')));
         if($response->status() === 401) {
             $this->RefreshToken($tokens->refresh_token);
             return $this->updateContact($request, $contactId);
         }
-        return $response->json();
+        return redirect('contacts');
     }
 
     public function deleteContact($contactId)
     {
         $tokens = oauth_access_token::first();
+        if (!$tokens)
+            return $this->getClientCode();
         $response = Http::asForm()->withOptions(['verify'=>false]);
         $response = $response->withHeaders([
             'Authorization' =>'Bearer '.$tokens->access_token,
@@ -165,6 +174,6 @@ class ContactController extends Controller
             $this->RefreshToken($tokens->refresh_token);
             return $this->deleteContact($contactId);
         }
-        return $response->json();
+        return redirect('contacts');
     }
 }

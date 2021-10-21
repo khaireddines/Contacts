@@ -4,7 +4,8 @@ namespace App\Constants;
 
 class Constants
 {
-    const app_url = 'http://contacts.me';
+    /** Change whatever needs to be changed here not in the Controller */
+    const app_url = 'http://localhost:8000';
     const authentication_uri = 'https://accounts.infusionsoft.com/app/oauth/authorize?client_id='.self::client_id.'&redirect_uri='.self::redirect_uri.'&response_type='.self::response_type;
     const accessToken_uri = 'https://api.infusionsoft.com/token';
     const email = 'nazran.info@gmail.com';
@@ -15,6 +16,7 @@ class Constants
     const redirect_uri = self::app_url.'/ApiAccessTokens';
     const grant_type = 'authorization_code';
     const api_uri = 'https://api.infusionsoft.com/crm/rest/v1';
+    /** --Change whatever needs to be changed here not in the Controller-- */
 
     /** Do Not Touch This Logic */
     protected $API_TOKEN = '';

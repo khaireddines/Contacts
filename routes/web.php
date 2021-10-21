@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ContactController;
 use Illuminate\Http\Request;
@@ -15,8 +16,11 @@ use Illuminate\Http\Request;
 |
 */
 
-Route::get('/', function () {
-    return view('contacts');
+Route::get('/install', function () {
+    Artisan::call('key:generate');
+    Artisan::call('optimize:clear');
+    Artisan::call('migrate');
+    return redirect('contacts');
 });
 /** Authentication Routes */
 Route::get('getClientCode', [ContactController::class, 'getClientCode'])->name('getClientCode');

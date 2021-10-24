@@ -24,6 +24,17 @@
         <div class="col-2">
             <a class="btn btn-outline-info" href="{{route('getClientCode')}}">Authenticate me</a>
         </div>
+        <div class="col">
+            @if ($errors->any())
+                <div class="alert alert-danger">
+                    <ul>
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+        </div>
         <!-- Button trigger modal -->
         <div class="col-2">
             <button type="button" class="btn btn-outline-success" style="float: right" data-bs-toggle="modal"
@@ -38,16 +49,23 @@
                 <thead>
                 <tr>
                     <th>ID</th>
-                    <th>Data</th>
+                    <th>First Name</th>
+                    <th>Last Name</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Fax</th>
                     <th>Actions</th>
                 </tr>
                 </thead>
                 <tbody>
-
                 @foreach($data['contacts'] as $contact)
                     <tr>
                         <td>{{$contact['id']}}</td>
-                        <td>@json($contact)</td>
+                        <td>{{$contact['given_name']}}</td>
+                        <td>{{$contact['family_name']}}</td>
+                        <td>{{(!empty($contact['email_addresses']['0']['email'])) ? $contact['email_addresses']['0']['email'] : '' }}</td>
+                        <td>{{(!empty($contact['phone_numbers']['0']['number'])) ? $contact['phone_numbers']['0']['number'] : '' }}</td>
+                        <td>{{(!empty($contact['fax_numbers']['0']['number'])) ? $contact['fax_numbers']['0']['number'] : '' }}</td>
                         <td>
                             <button type="button" class="btn btn-warning" data-bs-toggle="modal"
                                     data-bs-target="#updateModel" data-bs-contact='@json($contact)'>
@@ -59,10 +77,8 @@
                                 <button class="btn btn-danger" type="submit">Delete</button>
                             </form>
                         </td>
-
                     </tr>
                 @endforeach
-
                 </tbody>
             </table>
         </div>
@@ -83,9 +99,23 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <label for="contact"> Contact Object</label>
-                    <textarea id="contact" name="contact" class="form-control" style="height: 15rem"
-                              placeholder="Contact Object here, check Keap doc for Contact Object"></textarea>
+                    <div class="modal-body">
+                        <label for="first_name" class="form-label">First Name</label>
+                        <input type="text" class="form-control" id="first_name" name="first_name" placeholder="Jhon" value="{{@old('first_name')}}" required>
+
+                        <label for="last_name" class="form-label">Last Name</label>
+                        <input type="text" class="form-control" id="last_name" name="last_name" placeholder="Doe" value="{{@old('last_name')}}" required>
+
+                        <label for="email" class="form-label">Email address</label>
+                        <input type="email" class="form-control" id="email" name="email" placeholder="name@example.com" value="{{@old('email')}}" required>
+
+                        <label for="phone" class="form-label">Phone</label>
+                        <input type="number" class="form-control" id="phone" name="phone" placeholder="123456789" value="{{@old('phone')}}" required>
+
+                        <label for="fax" class="form-label">Fax</label>
+                        <input type="number" class="form-control" id="fax" name="fax" placeholder="123456789" value="{{@old('fax')}}" required>
+
+                    </div>
 
                 </div>
                 <div class="modal-footer">
@@ -109,9 +139,23 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <label for="contact"> Contact Object</label>
-                    <textarea id="contact" name="contact" class="form-control" style="height: 15rem"
-                              placeholder="Contact Object here, check Keap doc for Contact Object"></textarea>
+                    <div class="modal-body">
+                        <label for="first_name" class="form-label">First Name</label>
+                        <input type="text" class="form-control" id="first_name" name="first_name" placeholder="Jhon"  required>
+
+                        <label for="last_name" class="form-label">Last Name</label>
+                        <input type="text" class="form-control" id="last_name" name="last_name" placeholder="Doe"  required>
+
+                        <label for="email" class="form-label">Email address</label>
+                        <input type="email" class="form-control" id="email" name="email" placeholder="name@example.com"  required>
+
+                        <label for="phone" class="form-label">Phone</label>
+                        <input type="number" class="form-control" id="phone" name="phone" placeholder="123456789"  required>
+
+                        <label for="fax" class="form-label">Fax</label>
+                        <input type="number" class="form-control" id="fax" name="fax" placeholder="123456789"  required>
+
+                    </div>
 
                 </div>
                 <div class="modal-footer">
@@ -129,11 +173,17 @@
     });
     let updateModel = document.getElementById('updateModel');
     let initUpdateForm = updateModel.querySelector('.modal-content form').attributes.action.value;
+
     updateModel.addEventListener('show.bs.modal', function (event) {
         let button = event.relatedTarget
-        let contactData = button.getAttribute('data-bs-contact');
+        let contactData = JSON.parse(button.getAttribute('data-bs-contact'));
         let form = updateModel.querySelector('.modal-content form')
-        form.attributes.action.value = initUpdateForm+'/'+JSON.parse(contactData).id
+        form.attributes.action.value = initUpdateForm+'/'+contactData.id
+        form.elements['first_name'].value = contactData.given_name
+        form.elements['last_name'].value = contactData.family_name
+        form.elements['email'].value = contactData.email_addresses[0].email
+        form.elements['phone'].value = contactData.phone_numbers[0].number
+        form.elements['fax'].value = contactData.fax_numbers[0].number
     })
 </script>
 

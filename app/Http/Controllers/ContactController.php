@@ -114,18 +114,43 @@ class ContactController extends Controller
         $tokens = oauth_access_token::first();
         if (!$tokens)
             return $this->getClientCode();
-        $response = Http::asForm()->withOptions(['verify' => false]);
-        $response = $response->withHeaders([
-            'Authorization' => 'Bearer ' . $tokens->access_token,
-            'Accept' => 'application/json, */*'
-        ])->get(Constants::api_uri . '/contacts?optional_properties=fax_numbers');
+        $responseQuery = Http::asForm()->withOptions(['verify' => false])
+            ->withHeaders([
+                'Authorization' => 'Bearer ' . $tokens->access_token,
+                'Accept' => 'application/json, */*'
+            ]);
+        $response = $responseQuery->get(Constants::api_uri . '/contacts?optional_properties=fax_numbers');
         if ($response->status() === 401) {
             $this->RefreshToken($tokens->refresh_token);
             return $this->allContacts();
         }
-        return view('contacts')->with(['data' => $response->json()]);
+
+        $getTags = $responseQuery->get(Constants::api_uri . '/tags');
+
+        return view('contacts')->with(['data' => $response->json(),'tags'=>$getTags->json()]);
     }
 
+    public function retrieveContact($contact_id)
+    {
+        $tokens = oauth_access_token::first();
+        if (!$tokens)
+            return $this->getClientCode();
+        $responseQuery = Http::asForm()->withOptions(['verify' => false])
+            ->withHeaders([
+                'Authorization' => 'Bearer ' . $tokens->access_token,
+                'Accept' => 'application/json, */*'
+            ]);
+        $response = $responseQuery->get(Constants::api_uri . '/contacts/'. $contact_id.'?optional_properties=fax_numbers' );
+        if ($response->status() === 401) {
+            $this->RefreshToken($tokens->refresh_token);
+            return $this->allContacts();
+        }
+        if (!empty($response->json()['tag_ids'][0])) {
+            $tagDetails = $responseQuery->get(Constants::api_uri . '/tags/' . $response->json()['tag_ids'][0]);
+            return ['data'=>$response->json(),'tag'=>$tagDetails->json()];
+        }else
+            return ['data'=>$response->json(),'tag'=>[]];
+    }
     /**
      * @param Request $request
      * @return mixed
@@ -143,7 +168,7 @@ class ContactController extends Controller
             'fax' => ['required', 'min:6', 'integer']
         ]);
         $contact = [
-            'given_name'  => request('first_name'),
+            'given_name' => request('first_name'),
             'family_name' => request('last_name'),
             'email_addresses' => [
                 [
@@ -164,16 +189,19 @@ class ContactController extends Controller
                 ]
             ]
         ];
-        $response = Http::withOptions(['verify' => false]);
-        $response = $response->withHeaders([
-            'Authorization' => 'Bearer ' . $tokens->access_token,
-            'Accept' => 'application/json, */*',
-            'Content-Type' => 'application/json'
-        ])->post(Constants::api_uri . '/contacts', $contact);
+        $responseQuery = Http::withOptions(['verify' => false])
+            ->withHeaders([
+                'Authorization' => 'Bearer ' . $tokens->access_token,
+                'Accept' => 'application/json, */*',
+                'Content-Type' => 'application/json'
+            ]);
+        $response = $responseQuery->post(Constants::api_uri . '/contacts', $contact);
         if ($response->status() === 401) {
             $this->RefreshToken($tokens->refresh_token);
             return $this->createContact($request);
         }
+        $applyTag = $responseQuery->post(Constants::api_uri . '/tags/'.request('tag').'/contacts',['ids'=>[$response->json()['id']]]);
+
         return redirect('contacts');
     }
 
@@ -190,7 +218,7 @@ class ContactController extends Controller
             'fax' => ['required', 'min:6', 'integer']
         ]);
         $contact = [
-            'given_name'  => request('first_name'),
+            'given_name' => request('first_name'),
             'family_name' => request('last_name'),
             'email_addresses' => [
                 [

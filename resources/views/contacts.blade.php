@@ -67,6 +67,10 @@
                         <td>{{(!empty($contact['phone_numbers']['0']['number'])) ? $contact['phone_numbers']['0']['number'] : '' }}</td>
                         <td>{{(!empty($contact['fax_numbers']['0']['number'])) ? $contact['fax_numbers']['0']['number'] : '' }}</td>
                         <td>
+                            <button type="button"  class="btn btn-info details" data-bs-toggle="modal"
+                                    data-bs-target="#detailModel" data-bs-contact='@json($contact)'>
+                                Details
+                            </button>
                             <button type="button" class="btn btn-warning" data-bs-toggle="modal"
                                     data-bs-target="#updateModel" data-bs-contact='@json($contact)'>
                                 Update
@@ -76,6 +80,7 @@
                                 @method('DELETE')
                                 <button class="btn btn-danger" type="submit">Delete</button>
                             </form>
+
                         </td>
                     </tr>
                 @endforeach
@@ -99,24 +104,33 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <div class="modal-body">
-                        <label for="first_name" class="form-label">First Name</label>
-                        <input type="text" class="form-control" id="first_name" name="first_name" placeholder="Jhon" value="{{@old('first_name')}}" required>
+                    <label for="first_name" class="form-label">First Name</label>
+                    <input type="text" class="form-control" id="first_name" name="first_name" placeholder="Jhon"
+                           value="{{@old('first_name')}}" required>
 
-                        <label for="last_name" class="form-label">Last Name</label>
-                        <input type="text" class="form-control" id="last_name" name="last_name" placeholder="Doe" value="{{@old('last_name')}}" required>
+                    <label for="last_name" class="form-label">Last Name</label>
+                    <input type="text" class="form-control" id="last_name" name="last_name" placeholder="Doe"
+                           value="{{@old('last_name')}}" required>
 
-                        <label for="email" class="form-label">Email address</label>
-                        <input type="email" class="form-control" id="email" name="email" placeholder="name@example.com" value="{{@old('email')}}" required>
+                    <label for="email" class="form-label">Email address</label>
+                    <input type="email" class="form-control" id="email" name="email" placeholder="name@example.com"
+                           value="{{@old('email')}}" required>
 
-                        <label for="phone" class="form-label">Phone</label>
-                        <input type="number" class="form-control" id="phone" name="phone" placeholder="123456789" value="{{@old('phone')}}" required>
+                    <label for="phone" class="form-label">Phone</label>
+                    <input type="number" class="form-control" id="phone" name="phone" placeholder="123456789"
+                           value="{{@old('phone')}}" required>
 
-                        <label for="fax" class="form-label">Fax</label>
-                        <input type="number" class="form-control" id="fax" name="fax" placeholder="123456789" value="{{@old('fax')}}" required>
+                    <label for="fax" class="form-label">Fax</label>
+                    <input type="number" class="form-control" id="fax" name="fax" placeholder="123456789"
+                           value="{{@old('fax')}}" required>
 
-                    </div>
-
+                    <label for="tags" class="form-label">Tags</label>
+                    <select class="form-select"  id="tags" name="tag" aria-label="Contact Tag" required>
+                        <option selected disabled>Open this select menu</option>
+                        @foreach($tags['tags'] as $tag)
+                            <option value="{{$tag['id']}}">{{$tag['category']['name']}}: {{$tag['name']}}</option>
+                        @endforeach
+                    </select>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -131,7 +145,8 @@
      aria-labelledby="staticBackdropLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
-            <form action="{{url('contacts')}}" id="updateForm" method="POST" enctype="application/x-www-form-urlencoded">
+            <form action="{{url('contacts')}}" id="updateForm" method="POST"
+                  enctype="application/x-www-form-urlencoded">
                 @csrf
                 @method('PATCH')
                 <div class="modal-header">
@@ -139,23 +154,22 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <div class="modal-body">
-                        <label for="first_name" class="form-label">First Name</label>
-                        <input type="text" class="form-control" id="first_name" name="first_name" placeholder="Jhon"  required>
+                    <label for="first_name" class="form-label">First Name</label>
+                    <input type="text" class="form-control" id="first_name" name="first_name" placeholder="Jhon"
+                           required>
 
-                        <label for="last_name" class="form-label">Last Name</label>
-                        <input type="text" class="form-control" id="last_name" name="last_name" placeholder="Doe"  required>
+                    <label for="last_name" class="form-label">Last Name</label>
+                    <input type="text" class="form-control" id="last_name" name="last_name" placeholder="Doe" required>
 
-                        <label for="email" class="form-label">Email address</label>
-                        <input type="email" class="form-control" id="email" name="email" placeholder="name@example.com"  required>
+                    <label for="email" class="form-label">Email address</label>
+                    <input type="email" class="form-control" id="email" name="email" placeholder="name@example.com"
+                           required>
 
-                        <label for="phone" class="form-label">Phone</label>
-                        <input type="number" class="form-control" id="phone" name="phone" placeholder="123456789"  required>
+                    <label for="phone" class="form-label">Phone</label>
+                    <input type="number" class="form-control" id="phone" name="phone" placeholder="123456789" required>
 
-                        <label for="fax" class="form-label">Fax</label>
-                        <input type="number" class="form-control" id="fax" name="fax" placeholder="123456789"  required>
-
-                    </div>
+                    <label for="fax" class="form-label">Fax</label>
+                    <input type="number" class="form-control" id="fax" name="fax" placeholder="123456789" required>
 
                 </div>
                 <div class="modal-footer">
@@ -167,23 +181,85 @@
     </div>
 </div>
 
+<div class="modal fade" id="detailModel" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+     aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="staticBackdropLabel">Contact Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="detailDiv">
+
+                <label for="first_name" class="form-label">First Name</label>
+                <input type="text" disabled class="form-control" id="first_name" name="first_name">
+
+                <label for="last_name" class="form-label">Last Name</label>
+                <input type="text" disabled class="form-control" id="last_name" name="last_name">
+
+                <label for="email" class="form-label">Email address</label>
+                <input type="email" disabled class="form-control" id="email" name="email">
+
+                <label for="phone" class="form-label">Phone</label>
+                <input type="number" disabled class="form-control" id="phone" name="phone">
+
+                <label for="fax" class="form-label">Fax</label>
+                <input type="number" disabled class="form-control" id="fax" name="fax">
+
+                <label for="tag" class="form-label">Tag</label>
+                <input type="text" disabled class="form-control" id="tag" name="tag">
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
     $(document).ready(function () {
         $('#table_id').DataTable();
+        $('.details').on('click', function () {
+            let contactData = JSON.parse(this.getAttribute('data-bs-contact'));
+            let detailModel = document.getElementById('detailModel');
+            let detailDiv = detailModel.querySelector('.modal-content #detailDiv');
+            // Reset Model Data
+            detailDiv.children.first_name.value = ''
+            detailDiv.children.last_name.value = ''
+            detailDiv.children.email.value = ''
+            detailDiv.children.phone.value = ''
+            detailDiv.children.fax.value = ''
+            detailDiv.children.tag.value = ''
+            // Reset Model Data
+                $.ajax(
+                    {
+                        url: '/contacts/' + contactData.id,
+                        success: function (contact) {
+                            console.log(contact)
+                            detailDiv.children.first_name.value = contact.data.given_name
+                            detailDiv.children.last_name.value = contact.data.family_name
+                            detailDiv.children.email.value = contact.data.email_addresses[0].email
+                            detailDiv.children.phone.value = contact.data.phone_numbers[0].number
+                            detailDiv.children.fax.value = contact.data.fax_numbers[0].number
+                            detailDiv.children.tag.value = contact.tag.category.name+': '+ contact.tag.name
+                        }
+                    }
+                )
+        });
     });
     let updateModel = document.getElementById('updateModel');
     let initUpdateForm = updateModel.querySelector('.modal-content form').attributes.action.value;
-
     updateModel.addEventListener('show.bs.modal', function (event) {
         let button = event.relatedTarget
         let contactData = JSON.parse(button.getAttribute('data-bs-contact'));
         let form = updateModel.querySelector('.modal-content form')
-        form.attributes.action.value = initUpdateForm+'/'+contactData.id
+        form.attributes.action.value = initUpdateForm + '/' + contactData.id
         form.elements['first_name'].value = contactData.given_name
         form.elements['last_name'].value = contactData.family_name
         form.elements['email'].value = contactData.email_addresses[0].email
-        form.elements['phone'].value = contactData.phone_numbers[0].number
-        form.elements['fax'].value = contactData.fax_numbers[0].number
+        form.elements['phone'].value = (typeof (contactData.phone_numbers[0]) !== 'undefined') ? contactData.phone_numbers[0].number :''
+        form.elements['fax'].value = (typeof (contactData.fax_numbers[0]) !== 'undefined' ) ? contactData.fax_numbers[0].number :''
     })
 </script>
 

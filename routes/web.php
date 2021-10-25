@@ -29,6 +29,7 @@ Route::get('ApiAccessTokens', [ContactController::class, 'storeAccessTokens']);
 
 /** api Routes */
 Route::get('contacts', [ContactController::class, 'allContacts']);
+Route::get('contacts/{contactId}', [ContactController::class, 'retrieveContact']);
 Route::post('contacts', [ContactController::class, 'createContact']);
 Route::patch('contacts/{contactId}', [ContactController::class, 'updateContact']);
 Route::delete('contacts/{contactId}', [ContactController::class, 'deleteContact']);

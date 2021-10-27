@@ -16,6 +16,8 @@
             integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
     <script type="text/javascript" charset="utf8"
             src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/validate.js/0.13.1/validate.min.js"></script>
+    <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 </head>
 <body>
@@ -67,7 +69,7 @@
                         <td>{{(!empty($contact['phone_numbers']['0']['number'])) ? $contact['phone_numbers']['0']['number'] : '' }}</td>
                         <td>{{(!empty($contact['fax_numbers']['0']['number'])) ? $contact['fax_numbers']['0']['number'] : '' }}</td>
                         <td>
-                            <button type="button"  class="btn btn-info details" data-bs-toggle="modal"
+                            <button type="button" class="btn btn-info details" data-bs-toggle="modal"
                                     data-bs-target="#detailModel" data-bs-contact='@json($contact)'>
                                 Details
                             </button>
@@ -96,7 +98,7 @@
      aria-labelledby="staticBackdropLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
-            <form action="{{url('contacts')}}" method="POST" enctype="application/x-www-form-urlencoded">
+            <form class="new" action="{{url('contacts')}}" method="POST" enctype="application/x-www-form-urlencoded">
                 @csrf
                 @method('POST')
                 <div class="modal-header">
@@ -125,7 +127,7 @@
                            value="{{@old('fax')}}" required>
 
                     <label for="tags" class="form-label">Tags</label>
-                    <select class="form-select"  id="tags" name="tag" aria-label="Contact Tag" required>
+                    <select class="form-select" id="tags" name="tag" aria-label="Contact Tag" required>
                         <option selected disabled>Open this select menu</option>
                         @foreach($tags['tags'] as $tag)
                             <option value="{{$tag['id']}}">{{$tag['category']['name']}}: {{$tag['name']}}</option>
@@ -145,7 +147,7 @@
      aria-labelledby="staticBackdropLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
-            <form action="{{url('contacts')}}" id="updateForm" method="POST"
+            <form class="update" action="{{url('contacts')}}" id="updateForm" method="POST"
                   enctype="application/x-www-form-urlencoded">
                 @csrf
                 @method('PATCH')
@@ -232,20 +234,20 @@
             detailDiv.children.fax.value = ''
             detailDiv.children.tag.value = ''
             // Reset Model Data
-                $.ajax(
-                    {
-                        url: '/contacts/' + contactData.id,
-                        success: function (contact) {
-                            console.log(contact)
-                            detailDiv.children.first_name.value = contact.data.given_name
-                            detailDiv.children.last_name.value = contact.data.family_name
-                            detailDiv.children.email.value = contact.data.email_addresses[0].email
-                            detailDiv.children.phone.value = contact.data.phone_numbers[0].number
-                            detailDiv.children.fax.value = contact.data.fax_numbers[0].number
-                            detailDiv.children.tag.value = contact.tag.category.name+': '+ contact.tag.name
-                        }
+            $.ajax(
+                {
+                    url: '/contacts/' + contactData.id,
+                    success: function (contact) {
+                        console.log(contact)
+                        detailDiv.children.first_name.value = contact.data.given_name
+                        detailDiv.children.last_name.value = contact.data.family_name
+                        detailDiv.children.email.value = contact.data.email_addresses[0].email
+                        detailDiv.children.phone.value = contact.data.phone_numbers[0].number
+                        detailDiv.children.fax.value = contact.data.fax_numbers[0].number
+                        detailDiv.children.tag.value = contact.tag.category.name + ': ' + contact.tag.name
                     }
-                )
+                }
+            )
         });
     });
     let updateModel = document.getElementById('updateModel');
@@ -258,9 +260,64 @@
         form.elements['first_name'].value = contactData.given_name
         form.elements['last_name'].value = contactData.family_name
         form.elements['email'].value = contactData.email_addresses[0].email
-        form.elements['phone'].value = (typeof (contactData.phone_numbers[0]) !== 'undefined') ? contactData.phone_numbers[0].number :''
-        form.elements['fax'].value = (typeof (contactData.fax_numbers[0]) !== 'undefined' ) ? contactData.fax_numbers[0].number :''
+        form.elements['phone'].value = (typeof (contactData.phone_numbers[0]) !== 'undefined') ? contactData.phone_numbers[0].number : ''
+        form.elements['fax'].value = (typeof (contactData.fax_numbers[0]) !== 'undefined') ? contactData.fax_numbers[0].number : ''
     })
+    $('form.new, form.update').submit(function (evt){
+        evt.preventDefault();
+        console.log(this.elements.fax.value)
+        let constraints ={
+            first_name :{
+                presence: true,
+                type: 'string',
+            },
+            last_name :{
+                presence: true,
+                type: 'string',
+            },
+            email :{
+                presence: true,
+                email: true
+            },
+            phone :{
+                presence: true,
+                type: 'number',
+                numericality: {
+                    onlyInteger: true,
+                    greaterThan: 100000
+                }
+            },
+            fax :{
+                presence: true,
+                type: 'number',
+                numericality: {
+                    onlyInteger: true,
+                    greaterThan: 100000
+                }
+            }
+        }
+        let validationOBJ = {
+            first_name:this.elements.first_name.value,
+            last_name:this.elements.last_name.value,
+            email:this.elements.email.value,
+            phone:parseInt(this.elements.phone.value),
+            fax:parseInt(this.elements.fax.value),
+        };
+        let errors = validate(validationOBJ,constraints);
+        if (errors) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                html: Object.keys(errors).map(idx => (`${errors[idx]} <br />`))
+            });
+            return false;
+        }
+        Swal.fire({
+            icon: 'success',
+            title: 'Yay... Operation Success'
+        });
+        this.submit();
+    });
 </script>
 
 </body>
